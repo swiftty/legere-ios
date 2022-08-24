@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "datacachekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftty/DataCacheKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "a009e551911449315aa6f210edad2e97b879179e"
+      }
+    },
+    {
+      "identity" : "swiftsoup",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/scinfu/SwiftSoup.git",
+      "state" : {
+        "revision" : "6778575285177365cbad3e5b8a72f2a20583cfec",
+        "version" : "2.4.3"
+      }
+    }
+  ],
+  "version" : 2
+}
