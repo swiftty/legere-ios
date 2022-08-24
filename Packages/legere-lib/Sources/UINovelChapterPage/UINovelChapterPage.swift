@@ -7,6 +7,7 @@ public struct UINovelChapterPage: View {
     @Environment(\.chapterProvider) var chapterProvider
 
     let id: SourceID
+    @Binding var isPresented: Bool
 
     @State @WithLoading private var chapter: NovelChapter?
     @State private var isMenuActive = false
@@ -14,40 +15,122 @@ public struct UINovelChapterPage: View {
 
     @State private var fontSize = NovelChapterView.FontSize.body
 
-    public init(id: SourceID) {
+    @GestureState private var dragState = DragState.inactive
+
+    enum DragState {
+        case inactive
+        case dragging(translation: CGSize)
+
+        var translation: CGSize {
+            switch self {
+            case .dragging(let translation): return translation
+            case .inactive: return .zero
+            }
+        }
+
+        var isActive: Bool {
+            switch self {
+            case .inactive: return false
+            case .dragging: return true
+            }
+        }
+
+        var isDragging: Bool {
+            switch self {
+            case .dragging: return true
+            case .inactive: return false
+            }
+        }
+    }
+
+    private var toggleMenuGesture: some Gesture {
+        TapGesture()
+            .onEnded {
+                toggleMenu()
+            }
+    }
+
+    private var dragGesture: some Gesture {
+        LongPressGesture(minimumDuration: 1)
+            .sequenced(before: DragGesture())
+            .updating($dragState) { value, state, _ in
+                switch value {
+                case .first(true):
+                    break
+
+                case .second(true, let drag):
+                    state = .dragging(translation: drag?.translation ?? .zero)
+
+                default:
+                    state = .inactive
+                }
+            }
+            .onEnded { value in
+                guard case .second(true, let drag?) = value else { return }
+                if drag.translation.height > 150 && drag.predictedEndTranslation.height > 300 {
+                    closePage()
+                }
+            }
+    }
+
+    public init(id: SourceID, isPresented: Binding<Bool>) {
         self.id = id
+        self._isPresented = isPresented
     }
 
     public var body: some View {
-        content
-            .scaleEffect(isMenuActive ? 0.84 : 1)
-            .onTapGesture {
-                toggleMenu()
-            }
-            .overlay(alignment: .top) {
+        let isDragging = dragState.isDragging
+        let offset = dragState.translation
+        let isActive = dragState.isActive
+
+        ZStack {
+            content
+                .scaleEffect(isMenuActive ? 0.84 : 1)
+                .gesture(toggleMenuGesture)
+
+            VStack {
                 if isMenuActive {
                     topMenu
                         .transition(.move(edge: .top).combined(with: .opacity))
-                }
-            }
-            .overlay(alignment: .bottom) {
-                if isMenuActive {
+
+                    Spacer()
+
                     bottomMenu
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .sheet(isPresented: $isSettingPresented) {
-                settings
-                    .presentationDetents([.medium, .large])
-            }
-            .task {
-                if chapter == nil {
-                    await reload()
+        }
+        .scaleEffect(isDragging ? 0.9 : 1)
+        .offset(x: offset.width / 10, y: offset.height)
+        .background {
+            Rectangle()
+                .fill(isActive ? Color.clear : Color.primary)
+                .colorInvert()
+                .background {
+                    if isActive {
+                        Color.clear
+                            .background(.ultraThinMaterial)
+                    }
                 }
+                .cornerRadius(isDragging ? 20 : 0)
+                .scaleEffect(isDragging ? 0.9 : 1)
+                .offset(x: offset.width / 10, y: offset.height)
+                .ignoresSafeArea()
+        }
+        .gesture(dragGesture)
+        .animation(.spring(), value: isDragging)
+        .animation(.spring(), value: isActive)
+        .sheet(isPresented: $isSettingPresented) {
+            settings
+                .presentationDetents([.medium, .large])
+        }
+        .task {
+            if chapter == nil {
+                await reload()
             }
+        }
     }
 
-    @ViewBuilder
     private var content: some View {
         ZStack {
             let isLoading = _chapter.wrappedValue.isLoading
@@ -68,12 +151,11 @@ public struct UINovelChapterPage: View {
         }
     }
 
-    @ViewBuilder
     private var topMenu: some View {
         ZStack {
             HStack {
                 Button {
-
+                    closePage()
                 } label: {
                     Image(systemName: "chevron.backward")
                 }
@@ -94,14 +176,12 @@ public struct UINovelChapterPage: View {
         .frame(height: 44)
     }
 
-    @ViewBuilder
     private var bottomMenu: some View {
         ZStack {
         }
         .frame(height: 44)
     }
 
-    @ViewBuilder
     private var settings: some View {
         Form {
             Stepper(
@@ -131,6 +211,12 @@ public struct UINovelChapterPage: View {
     private func toggleMenu() {
         withAnimation(.spring(response: 0.4)) {
             isMenuActive.toggle()
+        }
+    }
+
+    private func closePage() {
+        withAnimation(.spring()) {
+            isPresented = false
         }
     }
 }
@@ -194,23 +280,44 @@ struct NovelChapterView: View {
 // MARK: -
 
 struct UINovelChapterPage_Previews: PreviewProvider {
-    static var previews: some View {
-        let text = try! AttributedString(markdown: """
-        あのイーハトーヴォのすきとほった^[風](ruby: 'かぜ')、夏でも底に冷たさをもつ^[青](ruby: 'あお')いそら、うつくしい森で飾られたモーリオ市、^[郊外](ruby: 'こうがい')のぎらぎらひかる草の波
-        """, including: \.ruby)
+    struct Preview: View {
+        @State var isPresented = true
 
-        return ForEach(["iPhone 8", nil], id: \.self) { device in
-            NavigationView {
-                UINovelChapterPage(id: .narou(""))
-                    .environment(\.chapterProvider, .init(
-                        fetch: { id in
-                            try? await ContinuousClock().sleep(until: .now.advanced(by: .seconds(4)))
-                            return NovelChapter(id: id, title: "ポラーノの広場", body: text)
+        var body: some View {
+            let text = try! AttributedString(markdown: """
+            あのイーハトーヴォのすきとほった^[風](ruby: 'かぜ')、夏でも底に冷たさをもつ^[青](ruby: 'あお')いそら、うつくしい森で飾られたモーリオ市、^[郊外](ruby: 'こうがい')のぎらぎらひかる草の波
+            """, including: \.ruby)
+
+            return ForEach(["iPhone 8", nil], id: \.self) { device in
+                ZStack {
+                    Color.blue
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                isPresented.toggle()
+                            }
                         }
-                    ))
+
+                    VStack {
+                        if isPresented {
+                            UINovelChapterPage(id: .narou(""), isPresented: $isPresented)
+                                .environment(\.chapterProvider, .init(
+                                    fetch: { id in
+                                        try? await ContinuousClock().sleep(until: .now.advanced(by: .seconds(1)))
+                                        return NovelChapter(id: id, title: "ポラーノの広場", body: text)
+                                    }
+                                ))
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                    }
+                }
+                .previewDevice(device.map(PreviewDevice.init(rawValue:)))
+                .previewDisplayName(device ?? "default")
             }
-            .previewDevice(device.map(PreviewDevice.init(rawValue:)))
-            .previewDisplayName(device ?? "default")
         }
+    }
+
+    static var previews: some View {
+        Preview()
     }
 }

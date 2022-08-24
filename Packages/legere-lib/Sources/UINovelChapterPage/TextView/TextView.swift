@@ -46,6 +46,7 @@ extension TextView {
 
             contentView.contentInset.top = 8
             contentView.contentInset.bottom = 8
+            contentView.contentInsetAdjustmentBehavior = .never
         }
 
         required init?(coder: NSCoder) {

@@ -13,6 +13,9 @@ struct App: SwiftUI.App {
 }
 
 struct ContentView: View {
+
+    @State private var isPresented = true
+
     var body: some View {
         var text = try! AttributedString(markdown: """
         あのイーハトーヴォのすきとほった^[風](ruby: 'かぜ')、夏でも底に冷たさをもつ^[青](ruby: 'あお')いそら、うつくしい森で飾られたモーリオ市、^[郊外](ruby: 'こうがい')のぎらぎらひかる草の波
@@ -20,12 +23,28 @@ struct ContentView: View {
         text.font = UIFont(name: "HiraMinPro-W3", size: 20)
         text.foregroundColor = UIColor.label
 
-        return UINovelChapterPage(id: .narou(""))
-            .environment(\.chapterProvider, .init(
-                fetch: { id in
-                    try? await ContinuousClock().sleep(until: .now.advanced(by: .seconds(4)))
-                    return NovelChapter(id: id, body: text)
+        return NavigationView {
+            ZStack {
+                Color.blue.ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            isPresented.toggle()
+                        }
+                    }
+
+                VStack {
+                    if isPresented {
+                        UINovelChapterPage(id: .narou(""), isPresented: $isPresented)
+                            .environment(\.chapterProvider, .init(
+                                fetch: { id in
+                                    try? await ContinuousClock().sleep(until: .now.advanced(by: .seconds(1)))
+                                    return NovelChapter(id: id, body: text)
+                                }
+                            ))
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
                 }
-            ))
+            }
+        }
     }
 }
