@@ -13,7 +13,7 @@ public struct UINovelChapterPage: View {
     @State private var isMenuActive = false
     @State private var isSettingPresented = false
 
-    @State private var fontSize = NovelChapterView.FontSize.body
+    @State private var fontSize = NovelChapterView.FontSize.footernote
 
     @GestureState private var dragState = DragState.inactive
 
@@ -105,13 +105,11 @@ public struct UINovelChapterPage: View {
         .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
         .background {
             Rectangle()
-                .fill(isActive ? Color.clear : Color.primary)
+                .fill(.primary.opacity(isActive ? 0 : 1))
                 .colorInvert()
                 .background {
-                    if isActive {
-                        Color.clear
-                            .background(.ultraThinMaterial)
-                    }
+                    Color.clear
+                        .background(.ultraThinMaterial)
                 }
                 .cornerRadius(isDragging ? 20 : 0)
                 .scaleEffect(isDragging ? 0.9 : 1)
@@ -125,6 +123,7 @@ public struct UINovelChapterPage: View {
                 .scaleEffect(isDragging ? 0.9 : 1)
                 .offset(x: offset.width / 10, y: offset.height)
                 .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
+                .ignoresSafeArea()
         )
         .gesture(dragGesture)
         .animation(.spring(), value: isDragging)
@@ -176,6 +175,7 @@ public struct UINovelChapterPage: View {
                     closePage()
                 } label: {
                     Image(systemName: "chevron.backward")
+                        .padding()
                 }
 
                 Spacer()
@@ -185,6 +185,7 @@ public struct UINovelChapterPage: View {
                     toggleMenu()
                 } label: {
                     Image(systemName: "textformat.size")
+                        .padding()
                 }
             }
             .font(.body.bold())
@@ -246,12 +247,13 @@ struct NovelChapterView: View {
         var size: CGFloat
 
         static let caption = Self.init(name: "caption", size: 12)
+        static let footernote = Self.init(name: "footernote", size: 16)
         static let body = Self.init(name: "body", size: 20)
         static let title = Self.init(name: "title", size: 28)
         static let largeTitle = Self.init(name: "large title", size: 36)
 
         private static let allCases: [Self] = [
-            .caption, .body, .title, .largeTitle
+            .caption, .footernote, .body, .title, .largeTitle
         ]
 
         func decr() -> FontSize? {
@@ -281,10 +283,10 @@ struct NovelChapterView: View {
         } else {
             text = AttributedString("")
         }
-        text.font = UIFont(name: "HiraMinPro-W6", size: fontSize.size * 2)
+        text.font = UIFont(name: "HiraMinPro-W6", size: (fontSize.size * 1.2).rounded())
         text.paragraphStyle = NSMutableParagraphStyle()
             .proxy
-            .paragraphSpacing(fontSize.size * 3)
+            .paragraphSpacing(fontSize.size * 2)
             .resolve()
 
         let endIndex = text.endIndex
