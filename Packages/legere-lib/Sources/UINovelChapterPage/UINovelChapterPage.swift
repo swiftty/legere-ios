@@ -299,31 +299,28 @@ struct UINovelChapterPage_Previews: PreviewProvider {
             あのイーハトーヴォのすきとほった^[風](ruby: 'かぜ')、夏でも底に冷たさをもつ^[青](ruby: 'あお')いそら、うつくしい森で飾られたモーリオ市、^[郊外](ruby: 'こうがい')のぎらぎらひかる草の波
             """, including: \.ruby)
 
-            return ForEach(["iPhone 8", nil], id: \.self) { device in
-                ZStack {
-                    Color.blue
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                isPresented.toggle()
-                            }
-                        }
-
-                    VStack {
-                        if isPresented {
-                            UINovelChapterPage(id: .narou(""), isPresented: $isPresented)
-                                .environment(\.chapterProvider, .init(
-                                    fetch: { id in
-                                        try? await ContinuousClock().sleep(until: .now.advanced(by: .seconds(1)))
-                                        return NovelChapter(id: id, title: "ポラーノの広場", body: text)
-                                    }
-                                ))
+            return ZStack {
+                Color.blue
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            isPresented.toggle()
                         }
                     }
+
+                VStack {
+                    if isPresented {
+                        UINovelChapterPage(id: .narou(""), isPresented: $isPresented)
+                            .environment(\.chapterProvider, .init(
+                                fetch: { id in
+                                    try? await ContinuousClock().sleep(until: .now.advanced(by: .seconds(1)))
+                                    return NovelChapter(id: id, title: "ポラーノの広場", body: text)
+                                }
+                            ))
+                    }
                 }
-                .previewDevice(device.map(PreviewDevice.init(rawValue:)))
-                .previewDisplayName(device ?? "default")
             }
+            .previewDevices()
         }
     }
 

@@ -18,7 +18,11 @@ let package = Package(
         ),
         .library(
             name: "LegereUI",
-            targets: ["UINovelChapterPage", "AttributedRubyAnnotation"]
+            targets: [
+                "UINovelChapterPage",
+                "UIRankingPortalPage",
+                "AttributedRubyAnnotation"
+            ]
         )
     ],
     dependencies: [
@@ -48,6 +52,10 @@ let package = Package(
             dependencies: [
                 "UIDomain"
             ]
+        ),
+        .target(
+            name: "UIRankingPortalPage",
+            dependencies: ["UIDomain"]
         ),
 
         // MARK: - dependencies

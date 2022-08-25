@@ -19,25 +19,3 @@ public struct NovelChapterProvider {
         try await props.fetch(id)
     }
 }
-
-extension NovelChapterProvider {
-    static var fatal: Self {
-        self.init(
-            fetch: { _ in fatalError() }
-        )
-    }
-}
-
-// MARK: -
-import SwiftUI
-
-extension EnvironmentValues {
-    private struct Key: EnvironmentKey {
-        static var defaultValue: NovelChapterProvider { .fatal }
-    }
-
-    public var chapterProvider: NovelChapterProvider {
-        get { self[Key.self] }
-        set { self[Key.self] = newValue }
-    }
-}
