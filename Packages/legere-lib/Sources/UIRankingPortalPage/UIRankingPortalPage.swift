@@ -4,8 +4,10 @@ import UIDomain
 
 public struct UIRankingPortalPage: View {
     @Environment(\.rankingProvider) var rankingProvider
+    @Environment(\.router) var router
 
     @State @WithLoading private var narouItems: [RankingItem] = []
+    @State private var selectedItem: SourceID?
 
     public init() {}
 
@@ -19,15 +21,37 @@ public struct UIRankingPortalPage: View {
     }
 
     private var content: some View {
-        RankingPortalView(narouItems: _narouItems.wrappedValue)
+        ZStack {
+            RankingPortalView(narouItems: _narouItems.wrappedValue, selectedItem: $selectedItem)
+
+            if let selected = selectedItem {
+                switch selected {
+                case .narou(let code):
+                    router.route(for:
+                            .chapterPage(
+                                id: .narou(code.rawValue + "/1"),
+                                isPresented: Binding(
+                                    get: {
+                                        selectedItem != nil
+                                    },
+                                    set: { newValue, _ in
+                                        selectedItem = newValue ? selectedItem : nil
+                                    })
+                            )
+                    )
+                }
+            }
+        }
     }
 }
 
 struct RankingPortalView: View {
     @WithLoading var narouItems: [RankingItem]
+    @Binding var selectedItem: SourceID?
 
-    init(narouItems: WithLoading<[RankingItem]>) {
+    init(narouItems: WithLoading<[RankingItem]>, selectedItem: Binding<SourceID?>) {
         _narouItems = narouItems
+        _selectedItem = selectedItem
     }
 
     var body: some View {
@@ -56,7 +80,9 @@ struct RankingPortalView: View {
                 HStack(spacing: 16) {
                     ForEach(items) { item in
                         Button {
-
+                            withAnimation(.spring()) {
+                                selectedItem = item.id
+                            }
                         } label: {
                             VStack(alignment: .leading) {
                                 Text(item.title)

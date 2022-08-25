@@ -119,6 +119,13 @@ public struct UINovelChapterPage: View {
                 .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
                 .ignoresSafeArea()
         }
+        .mask(
+            Rectangle()
+                .cornerRadius(isDragging ? 20 : 0)
+                .scaleEffect(isDragging ? 0.9 : 1)
+                .offset(x: offset.width / 10, y: offset.height)
+                .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
+        )
         .gesture(dragGesture)
         .animation(.spring(), value: isDragging)
         .animation(.spring(), value: isActive)
@@ -283,6 +290,7 @@ struct NovelChapterView: View {
         let endIndex = text.endIndex
         text += chapter.body
         text[endIndex...].font = UIFont(name: "HiraMinPro-W3", size: fontSize.size)
+        text.foregroundColor = UIColor.label
 
         return text
     }

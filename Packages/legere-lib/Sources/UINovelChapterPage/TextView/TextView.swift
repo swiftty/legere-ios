@@ -108,8 +108,8 @@ private final class ContentView: UIScrollView {
     override func layoutSubviews() {
         super.layoutSubviews()
         if !updating {
-            textLayoutManager.textViewportLayoutController.layoutViewport()
             updateContainerSizeIfNeeded()
+            textLayoutManager.textViewportLayoutController.layoutViewport()
         }
         contentLayer.frame = CGRect(origin: .zero, size: contentSize)
     }
