@@ -102,6 +102,7 @@ public struct UINovelChapterPage: View {
         }
         .scaleEffect(isDragging ? 0.9 : 1)
         .offset(x: offset.width / 10, y: offset.height)
+        .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
         .background {
             Rectangle()
                 .fill(isActive ? Color.clear : Color.primary)
@@ -115,6 +116,7 @@ public struct UINovelChapterPage: View {
                 .cornerRadius(isDragging ? 20 : 0)
                 .scaleEffect(isDragging ? 0.9 : 1)
                 .offset(x: offset.width / 10, y: offset.height)
+                .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
                 .ignoresSafeArea()
         }
         .gesture(dragGesture)
@@ -129,6 +131,15 @@ public struct UINovelChapterPage: View {
                 await reload()
             }
         }
+        .transition(
+            .asymmetric(
+                insertion: .move(edge: .bottom)
+                    .combined(with: .opacity)
+                    .combined(with: .scale(scale: 0.5)),
+                removal: .move(edge: .bottom)
+                    .combined(with: .opacity)
+                    .combined(with: .scale(scale: 0.5, anchor: .init(x: 0.5, y: 2))))
+        )
     }
 
     private var content: some View {
@@ -307,7 +318,6 @@ struct UINovelChapterPage_Previews: PreviewProvider {
                                         return NovelChapter(id: id, title: "ポラーノの広場", body: text)
                                     }
                                 ))
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
                     }
                 }

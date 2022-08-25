@@ -41,7 +41,6 @@ struct ContentView: View {
                                     return NovelChapter(id: id, body: text)
                                 }
                             ))
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
             }
