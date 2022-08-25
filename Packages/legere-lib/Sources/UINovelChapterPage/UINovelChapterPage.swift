@@ -14,6 +14,7 @@ public struct UINovelChapterPage: View {
     @State private var isSettingPresented = false
 
     @State private var fontSize = NovelChapterView.FontSize.footernote
+    @State private var vertical: Bool = true
 
     public init(id: SourceID, isPresented: Binding<Bool>) {
         self.id = id
@@ -45,7 +46,7 @@ public struct UINovelChapterPage: View {
         .onDismiss(action: closePage)
         .sheet(isPresented: $isSettingPresented) {
             settings
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.medium])
         }
         .task {
             if chapter == nil {
@@ -68,7 +69,7 @@ public struct UINovelChapterPage: View {
             let isLoading = _chapter.wrappedValue.isLoading
 
             if let chapter {
-                NovelChapterView(chapter: chapter, fontSize: fontSize)
+                NovelChapterView(chapter: chapter, fontSize: fontSize, vertical: vertical)
                     .blur(radius: isLoading ? 4 : 0)
                     .animation(.easeInOut(duration: 0.1), value: isLoading)
             }
@@ -133,6 +134,25 @@ public struct UINovelChapterPage: View {
                     }
                 }
             )
+
+            LabeledContent {
+                Picker(selection: $vertical) {
+                    ForEach([true, false], id: \.self) { flag in
+                        if flag {
+                            Image(systemName: "slider.vertical.3")
+                                .tag(flag)
+                        } else {
+                            Image(systemName: "slider.horizontal.3")
+                                .tag(flag)
+                        }
+                    }
+                } label: {
+                    Text("")
+                }
+                .pickerStyle(.segmented)
+            } label: {
+                Label("direction", systemImage: "text.justify.left")
+            }
         }
     }
 
@@ -186,6 +206,7 @@ struct NovelChapterView: View {
 
     let chapter: NovelChapter
     let fontSize: FontSize
+    let vertical: Bool
 
     var body: some View {
         TextView(attributedString: attributedString)
@@ -208,7 +229,7 @@ struct NovelChapterView: View {
         text += chapter.body
         text[endIndex...].font = UIFont(name: "HiraMinPro-W3", size: fontSize.size)
         text.foregroundColor = UIColor.label
-        text.verticalGlyph = true
+        text.verticalGlyph = vertical
 
         return text
     }
