@@ -15,119 +15,34 @@ public struct UINovelChapterPage: View {
 
     @State private var fontSize = NovelChapterView.FontSize.footernote
 
-    @GestureState private var dragState = DragState.inactive
-
-    enum DragState {
-        case inactive
-        case dragging(translation: CGSize)
-
-        var translation: CGSize {
-            switch self {
-            case .dragging(let translation): return translation
-            case .inactive: return .zero
-            }
-        }
-
-        var isActive: Bool {
-            switch self {
-            case .inactive: return false
-            case .dragging: return true
-            }
-        }
-
-        var isDragging: Bool {
-            switch self {
-            case .dragging: return true
-            case .inactive: return false
-            }
-        }
-    }
-
-    private var toggleMenuGesture: some Gesture {
-        TapGesture()
-            .onEnded {
-                toggleMenu()
-            }
-    }
-
-    private var dragGesture: some Gesture {
-        LongPressGesture(minimumDuration: 1)
-            .sequenced(before: DragGesture())
-            .updating($dragState) { value, state, _ in
-                switch value {
-                case .first(true):
-                    break
-
-                case .second(true, let drag):
-                    state = .dragging(translation: drag?.translation ?? .zero)
-
-                default:
-                    state = .inactive
-                }
-            }
-            .onEnded { value in
-                guard case .second(true, let drag?) = value else { return }
-                if drag.translation.height > 150 && drag.predictedEndTranslation.height > 300 {
-                    closePage()
-                }
-            }
-    }
-
     public init(id: SourceID, isPresented: Binding<Bool>) {
         self.id = id
         self._isPresented = isPresented
     }
 
     public var body: some View {
-        let isDragging = dragState.isDragging
-        let offset = dragState.translation
-        let isActive = dragState.isActive
+        CardComponent {
+            ZStack {
+                content
+                    .scaleEffect(isMenuActive ? 0.84 : 1)
+                    .onTapGesture {
+                        toggleMenu()
+                    }
 
-        ZStack {
-            content
-                .scaleEffect(isMenuActive ? 0.84 : 1)
-                .gesture(toggleMenuGesture)
+                VStack {
+                    if isMenuActive {
+                        topMenu
+                            .transition(.move(edge: .top).combined(with: .opacity))
 
-            VStack {
-                if isMenuActive {
-                    topMenu
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        Spacer()
 
-                    Spacer()
-
-                    bottomMenu
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        bottomMenu
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
                 }
             }
         }
-        .scaleEffect(isDragging ? 0.9 : 1)
-        .offset(x: offset.width / 10, y: offset.height)
-        .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
-        .background {
-            Rectangle()
-                .fill(.primary.opacity(isActive ? 0 : 1))
-                .colorInvert()
-                .background {
-                    Color.clear
-                        .background(.ultraThinMaterial)
-                }
-                .cornerRadius(isDragging ? 20 : 0)
-                .scaleEffect(isDragging ? 0.9 : 1)
-                .offset(x: offset.width / 10, y: offset.height)
-                .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
-                .ignoresSafeArea()
-        }
-        .mask(
-            Rectangle()
-                .cornerRadius(isDragging ? 20 : 0)
-                .scaleEffect(isDragging ? 0.9 : 1)
-                .offset(x: offset.width / 10, y: offset.height)
-                .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
-                .ignoresSafeArea()
-        )
-        .gesture(dragGesture)
-        .animation(.spring(), value: isDragging)
-        .animation(.spring(), value: isActive)
+        .onDismiss(action: closePage)
         .sheet(isPresented: $isSettingPresented) {
             settings
                 .presentationDetents([.medium, .large])
