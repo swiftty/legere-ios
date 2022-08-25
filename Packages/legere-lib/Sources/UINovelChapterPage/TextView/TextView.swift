@@ -1,6 +1,6 @@
 import UIKit
 import SwiftUI
-import AttributedRubyAnnotation
+import JapaneseAttributesKit
 
 struct TextView: UIViewRepresentable {
     let attributedString: AttributedString
@@ -16,7 +16,7 @@ struct TextView: UIViewRepresentable {
 
     private var attributedText: NSAttributedString {
         do {
-            return try NSAttributedString(attributedString, including: \.ruby)
+            return try NSAttributedString(attributedString, including: \.japanese)
         } catch {
             return NSAttributedString(attributedString)
         }

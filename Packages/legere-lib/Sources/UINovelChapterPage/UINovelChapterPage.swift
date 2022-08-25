@@ -1,7 +1,7 @@
 import SwiftUI
 import Domain
 import UIDomain
-import AttributedRubyAnnotation
+import JapaneseAttributesKit
 
 public struct UINovelChapterPage: View {
     @Environment(\.chapterProvider) var chapterProvider
@@ -222,7 +222,7 @@ struct UINovelChapterPage_Previews: PreviewProvider {
         var body: some View {
             let text = try! AttributedString(markdown: """
             あのイーハトーヴォのすきとほった^[風](ruby: 'かぜ')、夏でも底に冷たさをもつ^[青](ruby: 'あお')いそら、うつくしい森で飾られたモーリオ市、^[郊外](ruby: 'こうがい')のぎらぎらひかる草の波
-            """, including: \.ruby)
+            """, including: \.japanese)
 
             return ZStack {
                 Color.blue

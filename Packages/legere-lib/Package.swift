@@ -21,7 +21,7 @@ let package = Package(
             targets: [
                 "UINovelChapterPage",
                 "UIRankingPortalPage",
-                "AttributedRubyAnnotation"
+                "JapaneseAttributesKit"
             ]
         )
     ],
@@ -32,7 +32,7 @@ let package = Package(
     targets: [
         // MARK: - utils
         .target(
-            name: "AttributedRubyAnnotation"
+            name: "JapaneseAttributesKit"
         ),
 
         // MARK: - core domain
@@ -71,7 +71,7 @@ let package = Package(
             name: "NarouKit",
             dependencies: [
                 "Domain",
-                "AttributedRubyAnnotation",
+                "JapaneseAttributesKit",
                 "SwiftSoup"
             ]
         ),
