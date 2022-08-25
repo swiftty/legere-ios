@@ -208,6 +208,7 @@ struct NovelChapterView: View {
         text += chapter.body
         text[endIndex...].font = UIFont(name: "HiraMinPro-W3", size: fontSize.size)
         text.foregroundColor = UIColor.label
+        text.verticalGlyph = true
 
         return text
     }

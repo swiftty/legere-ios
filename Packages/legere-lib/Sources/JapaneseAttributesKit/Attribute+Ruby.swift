@@ -1,11 +1,5 @@
 import Foundation
 import CoreText
-#if canImport(UIKit)
-import UIKit
-#endif
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
 
 public enum RubyAttribute: CodableAttributedStringKey,
                            MarkdownDecodableAttributedStringKey,

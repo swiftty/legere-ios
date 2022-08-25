@@ -11,14 +11,16 @@ struct TextView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: View, context: Context) {
-        uiView.attributedText = attributedText
+        let (text, vertical) = build()
+        uiView.vertical = vertical
+        uiView.attributedText = text
     }
 
-    private var attributedText: NSAttributedString {
+    private func build() -> (NSAttributedString, Bool) {
         do {
-            return try NSAttributedString(attributedString, including: \.japanese)
+            return try (NSAttributedString(attributedString, including: \.japanese), attributedString.verticalGlyph ?? false)
         } catch {
-            return NSAttributedString(attributedString)
+            return (NSAttributedString(attributedString), false)
         }
     }
 }
@@ -34,6 +36,11 @@ extension TextView {
             get { contentView.attributedText }
             set { contentView.attributedText = newValue }
         }
+        var vertical: Bool = false {
+            didSet {
+                contentView.transform = vertical ? .init(rotationAngle: .pi / 2) : .identity
+            }
+        }
 
         private let contentView = ContentView()
 
@@ -42,7 +49,6 @@ extension TextView {
             addSubview(contentView)
             contentView.frame = bounds
             contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            contentView.transform = .init(rotationAngle: .pi / 2)
 
             contentView.contentInset.top = 8
             contentView.contentInset.bottom = 8
@@ -129,10 +135,6 @@ extension ContentView {
     }
 
     private func setText(_ string: NSAttributedString?) {
-        let string = string.map(NSMutableAttributedString.init(attributedString:))
-        if let string {
-            string.addAttribute(.verticalGlyphForm, value: true, range: NSRange(location: 0, length: string.length))
-        }
         textContentStorage.performEditingTransaction {
             textContentStorage.attributedString = string
         }

@@ -1,7 +1,7 @@
 import Foundation
 import CoreText
 import Domain
-import AttributedRubyAnnotation
+import JapaneseAttributesKit
 import SwiftSoup
 
 extension NovelChapter {
