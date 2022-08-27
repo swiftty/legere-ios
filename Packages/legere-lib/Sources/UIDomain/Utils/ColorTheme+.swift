@@ -2,18 +2,41 @@ import Domain
 import UIKit
 
 extension ColorTheme {
-    public var textColor: UIColor { text.asColor(or: .label) }
-    public var backgroundColor: UIColor { background.asColor(or: .systemBackground) }
+    public var textColor: UIColor {
+        value.asColor(for: .text)
+    }
+
+    public var backgroundColor: UIColor {
+        value.asColor(for: .background)
+    }
 }
 
 private extension ColorTheme.Value {
-    func asColor(or `default`: @autoclosure () -> UIColor) -> UIColor {
-        switch self {
-        case .hex(let string):
-            return UIColor(hex: string) ?? `default`()
+    enum Variant {
+        case text, background
+    }
 
-        case .system:
-            return `default`()
+    func asColor(for variant: Variant) -> UIColor {
+        switch (self, variant) {
+        case (.system, .text):
+            return .label
+
+        case (.system, .background):
+            return .systemBackground
+
+        case (.mild, .text):
+            lazy var light = UIColor(hex: "292826") ?? .label
+            lazy var dark = UIColor(hex: "DFDFE0") ?? .label
+            return UIColor { trait in
+                trait.userInterfaceStyle == .light ? light : dark
+            }
+
+        case (.mild, .background):
+            lazy var light = UIColor(hex: "F6F5EB") ?? .systemBackground
+            lazy var dark = UIColor(hex: "292A2F") ?? .systemBackground
+            return UIColor { trait in
+                trait.userInterfaceStyle == .light ? light : dark
+            }
         }
     }
 }

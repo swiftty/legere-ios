@@ -106,7 +106,6 @@ public struct UINovelChapterPage: View {
                 }
             }
             .font(.body.bold())
-            .foregroundColor(Color(uiColor: colorTheme.textColor))
             .foregroundStyle(.secondary)
             .padding([.leading, .trailing])
         }
