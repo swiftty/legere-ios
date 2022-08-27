@@ -1,12 +1,14 @@
 import SwiftUI
 
 struct CardComponent<Content: View>: View {
+    let backgroundColor: Color
     let content: Content
     private var onDismiss: (() -> Void)?
 
     @GestureState private var dragState: CGSize?
 
-    init(@ViewBuilder content: () -> Content) {
+    init(backgroundColor: Color, @ViewBuilder content: () -> Content) {
+        self.backgroundColor = backgroundColor
         self.content = content()
     }
 
@@ -18,8 +20,7 @@ struct CardComponent<Content: View>: View {
             .cardEffect(active: isDragging, offset: offset)
             .background {
                 Rectangle()
-                    .fill(.primary.opacity(isDragging ? 0 : 1))
-                    .colorInvert()
+                    .fill(backgroundColor.opacity(isDragging ? 0.4 : 1))
                     .background {
                         Color.clear
                             .background(.ultraThinMaterial)

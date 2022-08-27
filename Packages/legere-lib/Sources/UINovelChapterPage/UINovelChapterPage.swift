@@ -15,6 +15,7 @@ public struct UINovelChapterPage: View {
 
     @State private var fontSize = NovelChapterView.FontSize.footernote
     @State private var vertical: Bool = true
+    @State private var colorTheme: ColorTheme = .system
 
     public init(id: SourceID, isPresented: Binding<Bool>) {
         self.id = id
@@ -22,7 +23,7 @@ public struct UINovelChapterPage: View {
     }
 
     public var body: some View {
-        CardComponent {
+        CardComponent(backgroundColor: .init(uiColor: colorTheme.backgroundColor)) {
             ZStack {
                 content
                     .scaleEffect(isMenuActive ? 0.84 : 1)
@@ -45,7 +46,7 @@ public struct UINovelChapterPage: View {
         }
         .onDismiss(action: closePage)
         .sheet(isPresented: $isSettingPresented) {
-            settings
+            PreferenceView(fontSize: $fontSize, vertical: $vertical, colorTheme: $colorTheme)
                 .presentationDetents([.medium])
         }
         .task {
@@ -69,7 +70,7 @@ public struct UINovelChapterPage: View {
             let isLoading = _chapter.wrappedValue.isLoading
 
             if let chapter {
-                NovelChapterView(chapter: chapter, fontSize: fontSize, vertical: vertical)
+                NovelChapterView(chapter: chapter, fontSize: fontSize, vertical: vertical, colorTheme: colorTheme)
                     .blur(radius: isLoading ? 4 : 0)
                     .animation(.easeInOut(duration: 0.1), value: isLoading)
             }
@@ -105,6 +106,7 @@ public struct UINovelChapterPage: View {
                 }
             }
             .font(.body.bold())
+            .foregroundColor(Color(uiColor: colorTheme.textColor))
             .foregroundStyle(.secondary)
             .padding([.leading, .trailing])
         }
@@ -115,45 +117,6 @@ public struct UINovelChapterPage: View {
         ZStack {
         }
         .frame(height: 44)
-    }
-
-    private var settings: some View {
-        Form {
-            Stepper(
-                label: {
-                    Label("font size", systemImage: "textformat.size")
-                },
-                onIncrement: fontSize.incr().map { next in
-                    return {
-                        fontSize = next
-                    }
-                },
-                onDecrement: fontSize.decr().map { next in
-                    return {
-                        fontSize = next
-                    }
-                }
-            )
-
-            LabeledContent {
-                Picker(selection: $vertical) {
-                    ForEach([true, false], id: \.self) { flag in
-                        if flag {
-                            Image(systemName: "slider.vertical.3")
-                                .tag(flag)
-                        } else {
-                            Image(systemName: "slider.horizontal.3")
-                                .tag(flag)
-                        }
-                    }
-                } label: {
-                    Text("")
-                }
-                .pickerStyle(.segmented)
-            } label: {
-                Label("direction", systemImage: "text.justify.left")
-            }
-        }
     }
 
     private func reload() async {
@@ -207,6 +170,7 @@ struct NovelChapterView: View {
     let chapter: NovelChapter
     let fontSize: FontSize
     let vertical: Bool
+    let colorTheme: ColorTheme
 
     var body: some View {
         TextView(attributedString: attributedString)
@@ -228,8 +192,8 @@ struct NovelChapterView: View {
         let endIndex = text.endIndex
         text += chapter.body
         text[endIndex...].font = UIFont(name: "HiraMinPro-W3", size: fontSize.size)
-        text.foregroundColor = UIColor.label
         text.verticalGlyph = vertical
+        text.foregroundColor = colorTheme.textColor
 
         return text
     }
