@@ -17,7 +17,7 @@ struct CardComponent<Content: View>: View {
         let offset = dragState ?? .zero
 
         content
-            .cardEffect(active: isDragging, offset: offset)
+            .dragEffect(active: isDragging, offset: offset)
             .background {
                 Rectangle()
                     .fill(backgroundColor.opacity(isDragging ? 0.4 : 1))
@@ -25,12 +25,14 @@ struct CardComponent<Content: View>: View {
                         Color.clear
                             .background(.ultraThinMaterial)
                     }
-                    .cardEffect(active: isDragging, offset: offset)
+                    .cornerRadius(isDragging ? 20 : 0)
+                    .dragEffect(active: isDragging, offset: offset)
                     .ignoresSafeArea()
             }
             .mask(
                 Rectangle()
-                    .cardEffect(active: isDragging, offset: offset)
+                    .cornerRadius(isDragging ? 20 : 0)
+                    .dragEffect(active: isDragging, offset: offset)
                     .ignoresSafeArea()
             )
             .gesture(dragGesture)
@@ -68,9 +70,8 @@ struct CardComponent<Content: View>: View {
 }
 
 private extension View {
-    func cardEffect(active: Bool, offset: CGSize) -> some View {
+    func dragEffect(active: Bool, offset: CGSize) -> some View {
         return self
-            .cornerRadius(active ? 20 : 0)
             .scaleEffect(active ? 0.9 : 1)
             .offset(x: offset.width / 10, y: offset.height)
             .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
