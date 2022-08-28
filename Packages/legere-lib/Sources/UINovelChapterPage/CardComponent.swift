@@ -26,6 +26,12 @@ struct CardComponent<Content: View>: View {
                             .background(.ultraThinMaterial)
                     }
                     .cornerRadius(isDragging ? 20 : 0)
+                    .overlay {
+                        if isDragging {
+                            RoundedRectangle(cornerRadius: 20)
+                                .strokeBorder(.thinMaterial, lineWidth: 2)
+                        }
+                    }
                     .dragEffect(active: isDragging, offset: offset)
                     .ignoresSafeArea()
             }
@@ -74,6 +80,6 @@ private extension View {
         return self
             .scaleEffect(active ? 0.9 : 1)
             .offset(x: offset.width / 10, y: offset.height)
-            .rotation3DEffect(.degrees(offset.width / 10), axis: (0, 1, 0.1))
+            .rotation3DEffect(.degrees(offset.width / 20), axis: (0, 1, 0.1))
     }
 }

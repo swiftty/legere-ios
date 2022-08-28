@@ -50,8 +50,12 @@ public struct UINovelChapterPage: View {
                 .presentationDetents([.medium])
         }
         .task {
-            if chapter == nil {
-                await reload()
+            await reload()
+        }
+        .onChange(of: id) { id in
+            guard chapter?.id != id else { return }
+            Task {
+                await reload(with: id)
             }
         }
         .transition(
@@ -118,9 +122,9 @@ public struct UINovelChapterPage: View {
         .frame(height: 44)
     }
 
-    private func reload() async {
+    private func reload(with id: SourceID? = nil) async {
         await _chapter.try {
-            try await chapterProvider.fetch(withID: id)
+            try await chapterProvider.fetch(withID: id ?? self.id)
         }
     }
 
