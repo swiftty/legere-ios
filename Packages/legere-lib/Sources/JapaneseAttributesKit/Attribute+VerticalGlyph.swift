@@ -1,9 +1,6 @@
 import Foundation
 
-public enum VerticalGlyphFormAttribute: CodableAttributedStringKey,
-                                        MarkdownDecodableAttributedStringKey {
+public enum VerticalGlyphFormAttribute: CodableAttributedStringKey {
     public static var name: String { NSAttributedString.Key.verticalGlyphForm.rawValue }
-    public static var markdownName: String { "vertical" }
-
     public typealias Value = Bool
 }

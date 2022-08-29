@@ -30,13 +30,7 @@ public struct UIRankingPortalPage: View {
                     router.route(for:
                             .chapterPage(
                                 id: .narou(code.rawValue + "/1"),
-                                isPresented: Binding(
-                                    get: {
-                                        selectedItem != nil
-                                    },
-                                    set: { newValue, _ in
-                                        selectedItem = newValue ? selectedItem : nil
-                                    })
+                                isPresented: $selectedItem.asBool()
                             )
                     )
                 }

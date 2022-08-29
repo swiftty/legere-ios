@@ -68,13 +68,9 @@ public enum RubyAttribute: CodableAttributedStringKey,
         }
     }
 
-    public static func decode(from decoder: Decoder) throws -> Value {
-        do {
-            let text = try decoder.singleValueContainer().decode(String.self)
-            return .init(text: text)
-        } catch {
-            return try Value(from: decoder)
-        }
+    public static func decodeMarkdown(from decoder: Decoder) throws -> Value {
+        let text = try decoder.singleValueContainer().decode(String.self)
+        return .init(text: text)
     }
 
     public static func objectiveCValue(for value: Value) throws -> NSObject {
