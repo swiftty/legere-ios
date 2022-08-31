@@ -47,27 +47,44 @@ public struct UINovelDetailPage: View {
 }
 
 struct DetailView: View {
+    @Environment(\.router) var router
+
     var detail: NovelDetail
+    @State private var selectedID: SourceID?
 
     var body: some View {
-        ScrollView {
-            VStack {
-                if let story = detail.story {
-                    Text(story)
-                }
-
-                Section {
-                    ForEach(detail.index) { index in
-                        Text(index.title ?? "")
+        ZStack {
+            ScrollView {
+                VStack {
+                    if let story = detail.story {
+                        Text(story)
                     }
-                } header: {
-                    Text("chapter")
-                        .font(.headline)
+
+                    Section {
+                        ForEach(detail.index) { index in
+                            Button {
+                                selectedID = index.id
+                            } label: {
+                                Text(index.title ?? "")
+                                    .multilineTextAlignment(.leading)
+                            }
+                        }
+                    } header: {
+                        Text("chapter")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+
+            VStack {
+                if let selectedID {
+                    router.route(for: .chapterPage(id: selectedID, isPresented: $selectedID.asBool()))
+                }
+            }
         }
         .navigationTitle(detail.title)
+        .toolbar(selectedID != nil ? .hidden : .automatic, for: .navigationBar)
     }
 }
