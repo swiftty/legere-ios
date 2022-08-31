@@ -20,6 +20,7 @@ let package = Package(
             name: "LegereUI",
             targets: [
                 "UINovelChapterPage",
+                "UINovelDetailPage",
                 "UIRankingPortalPage",
                 "JapaneseAttributesKit"
             ]
@@ -54,8 +55,16 @@ let package = Package(
             ]
         ),
         .target(
+            name: "UINovelDetailPage",
+            dependencies: [
+                "UIDomain"
+            ]
+        ),
+        .target(
             name: "UIRankingPortalPage",
-            dependencies: ["UIDomain"]
+            dependencies: [
+                "UIDomain"
+            ]
         ),
 
         // MARK: - dependencies

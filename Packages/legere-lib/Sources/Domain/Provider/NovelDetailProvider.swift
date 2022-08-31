@@ -2,20 +2,27 @@ import Foundation
 
 public struct NovelDetailProvider {
     struct Props {
-        var fetch: (SourceID) async throws -> NovelDetail
+        var fetchByID: (SourceID) async throws -> NovelDetail
+        var fetchFromRankingItem: (RankingItem) async throws -> NovelDetail
     }
 
     var props: Props
 
     public init(
-        fetch: @escaping (SourceID) async throws -> NovelDetail
+        fetchByID: @escaping (SourceID) async throws -> NovelDetail,
+        fetchFromRankingItem: @escaping (RankingItem) async throws -> NovelDetail
     ) {
         props = .init(
-            fetch: fetch
+            fetchByID: fetchByID,
+            fetchFromRankingItem: fetchFromRankingItem
         )
     }
 
     public func fetch(withID id: SourceID) async throws -> NovelDetail {
-        try await props.fetch(id)
+        try await props.fetchByID(id)
+    }
+
+    public func fetch(from item: RankingItem) async throws -> NovelDetail {
+        try await props.fetchFromRankingItem(item)
     }
 }

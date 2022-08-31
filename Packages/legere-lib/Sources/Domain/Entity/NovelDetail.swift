@@ -42,7 +42,7 @@ public struct NovelDetail: Identifiable, Equatable, Codable {
     }
 }
 
-public struct Auther: Identifiable, Equatable, Codable {
+public struct Auther: Identifiable, Equatable, Hashable, Codable {
     public var id: SourceID
     public var name: String
 

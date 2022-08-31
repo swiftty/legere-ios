@@ -52,6 +52,9 @@ public struct WithLoading<T> {
     public init(wrappedValue: T) {
         initialValue = wrappedValue
     }
+    public init(projectedValue: Self) {
+        self = projectedValue
+    }
 
     public mutating func next(_ nextState: State) {
         currentState = nextState

@@ -27,3 +27,15 @@ extension Routing where Self == Routings.ChapterPage {
     }
 }
 
+// MARK: -
+extension Routings {
+    public struct DetailPage: Routing {
+        public let item: RankingItem
+    }
+}
+
+extension Routing where Self == Routings.DetailPage {
+    public static func detailPage(from item: RankingItem) -> Self {
+        self.init(item: item)
+    }
+}

@@ -12,11 +12,19 @@ extension NovelDetailProvider {
         let cache = DiskCache<String>(options: options)
 
         return self.init(
-            fetch: { id in
+            fetchByID: { id in
                 switch id {
                 case .narou(let code):
                     return try await caching(forKey: code.rawValue, in: cache) {
                         try await NovelDetail.fetch(withCode: code, using: session)
+                    }
+                }
+            },
+            fetchFromRankingItem: { item in
+                switch item.id {
+                case .narou(let code):
+                    return try await caching(forKey: code.rawValue, in: cache) {
+                        try await NovelDetail.fetch(from: item, using: session)
                     }
                 }
             }

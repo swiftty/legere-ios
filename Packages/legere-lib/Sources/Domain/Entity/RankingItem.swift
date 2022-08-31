@@ -1,6 +1,6 @@
 import Foundation
 
-public struct RankingItem: Identifiable, Equatable, Codable {
+public struct RankingItem: Identifiable, Equatable, Hashable, Codable {
     public var id: SourceID
     public var title: String
     public var story: String?

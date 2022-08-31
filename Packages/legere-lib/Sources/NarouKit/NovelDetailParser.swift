@@ -13,6 +13,7 @@ extension NovelDetail {
         return try self.init(
             id: parseSourceID(html),
             title: parseTitle(html),
+            story: parseStory(html),
             auther: parseAuther(html),
             index: parseIndex(html)
         )
