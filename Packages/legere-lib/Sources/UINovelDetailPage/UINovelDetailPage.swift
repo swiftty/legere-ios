@@ -77,14 +77,8 @@ struct DetailView: View {
                 }
                 .padding(.horizontal)
             }
-
-            VStack {
-                if let selectedID {
-                    router.route(for: .chapterPage(id: selectedID, isPresented: $selectedID.asBool()))
-                }
-            }
         }
         .navigationTitle(detail.title)
-        .toolbar(selectedID != nil ? .hidden : .automatic, for: .navigationBar)
+        .overlay(value: $selectedID)
     }
 }

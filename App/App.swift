@@ -59,5 +59,8 @@ struct ContentView: View {
                     router.route(for: .detailPage(from: item))
                 }
         }
+        .overlayDestination(for: SourceID.self) { id, $isPresented in
+            router.route(for: .chapterPage(id: id, isPresented: $isPresented))
+        }
     }
 }

@@ -54,18 +54,16 @@ public struct UINovelChapterPage: View {
         }
         .onChange(of: id) { id in
             guard chapter?.id != id else { return }
+            resetState()
             Task {
                 await reload(with: id)
             }
         }
         .transition(
-            .asymmetric(
-                insertion: .move(edge: .bottom)
-                    .combined(with: .opacity)
-                    .combined(with: .scale(scale: 0.5)),
-                removal: .move(edge: .bottom)
-                    .combined(with: .opacity)
-                    .combined(with: .scale(scale: 0.5, anchor: .init(x: 0.5, y: 2))))
+            .move(edge: .bottom)
+            .combined(with: .opacity)
+            .combined(with: .scale(scale: 0.5, anchor: .init(x: 0.5, y: 2)))
+            .animation(.spring(response: 0.4).speed(1.2))
         )
     }
 
@@ -122,6 +120,11 @@ public struct UINovelChapterPage: View {
         .frame(height: 44)
     }
 
+    private func resetState() {
+        isMenuActive = false
+        isSettingPresented = false
+    }
+
     private func reload(with id: SourceID? = nil) async {
         await _chapter.try {
             try await chapterProvider.fetch(withID: id ?? self.id)
@@ -135,7 +138,7 @@ public struct UINovelChapterPage: View {
     }
 
     private func closePage() {
-        withAnimation(.spring()) {
+        withAnimation(.spring().speed(1.2)) {
             isPresented = false
         }
     }
