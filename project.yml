@@ -1,0 +1,48 @@
+name: legere-ios
+
+# configs
+configs:
+  Debug: debug
+  Release: release
+
+# settings
+settings:
+  base:
+    VERSIONING_SYSTEM: apple-generic
+  configs:
+    Debug:
+      OTHER_SWIFT_FLAGS: -DDEBUG
+
+# options
+options:
+  bundleIdPrefix: com.swiftty.legere-ios
+  developmentLanguage: ja
+
+# packages
+packages:
+  legere-lib:
+    path: Packages/legere-lib
+
+# targets
+targets:
+  App:
+    type: application
+    platform: iOS
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: com.swiftty.legere-ios.debug
+    sources:
+      - path: App
+      - path: project.yml
+        group: Configurations
+        buildPhase: none
+    dependencies:
+      - package: legere-lib
+        product: LegereLib
+      - package: legere-lib
+        product: LegereDeps
+      - package: legere-lib
+        product: LegereUI
