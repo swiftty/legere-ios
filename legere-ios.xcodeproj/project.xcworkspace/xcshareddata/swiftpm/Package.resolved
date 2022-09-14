@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "japaneseattributeskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftty/JapaneseAttributesKit.git",
+      "state" : {
+        "revision" : "60d28ade1b1cca0af63a996a2e9a77a8ee5fde08",
+        "version" : "0.0.1"
+      }
+    },
+    {
       "identity" : "swiftsoup",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
