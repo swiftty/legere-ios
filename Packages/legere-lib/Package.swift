@@ -48,7 +48,8 @@ let package = Package(
         .target(
             name: "UINovelChapterPage",
             dependencies: [
-                "UIDomain"
+                "UIDomain",
+                "JapaneseAttributesKit"
             ]
         ),
         .target(
