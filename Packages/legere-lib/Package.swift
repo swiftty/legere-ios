@@ -27,7 +27,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.4.3"),
-        .package(url: "https://github.com/swiftty/DataCacheKit.git", branch: "main"),
+        .package(url: "https://github.com/swiftty/DataCacheKit.git", from: "0.0.3"),
+        .package(url: "https://github.com/swiftty/reactorium.git", from: "0.0.1"),
         .package(url: "https://github.com/swiftty/JapaneseAttributesKit.git", from: "0.0.1")
     ],
     targets: [
