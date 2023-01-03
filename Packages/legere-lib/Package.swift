@@ -50,7 +50,8 @@ let package = Package(
             name: "UINovelChapterPage",
             dependencies: [
                 "UIDomain",
-                "JapaneseAttributesKit"
+                "JapaneseAttributesKit",
+                .product(name: "Reactorium", package: "reactorium")
             ]
         ),
         .target(

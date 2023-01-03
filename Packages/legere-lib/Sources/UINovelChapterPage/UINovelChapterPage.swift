@@ -1,21 +1,12 @@
 import SwiftUI
+import Reactorium
 import Domain
 import UIDomain
 import JapaneseAttributesKit
 
 public struct UINovelChapterPage: View {
-    @Environment(\.chapterProvider) var chapterProvider
-
     let id: SourceID
     @Binding var isPresented: Bool
-
-    @State @WithLoading private var chapter: NovelChapter?
-    @State private var isMenuActive = false
-    @State private var isSettingPresented = false
-
-    @State private var fontSize = NovelChapterView.FontSize.footernote
-    @State private var vertical: Bool = true
-    @State private var colorTheme: ColorTheme = .system
 
     public init(id: SourceID, isPresented: Binding<Bool>) {
         self.id = id
@@ -23,16 +14,55 @@ public struct UINovelChapterPage: View {
     }
 
     public var body: some View {
+        Content(id: id, isPresented: $isPresented)
+            .store(initialState: .init(id: id), reducer: NovelChapterReducer(), dependency: {
+                .init(chapter: $0.chapterProvider)
+            })
+    }
+
+    private struct Content: View {
+        let id: SourceID
+        @Binding var isPresented: Bool
+
+        @EnvironmentObject var store: StoreOf<NovelChapterReducer>
+
+        var body: some View {
+            UINovelChapterContent(isPresented: $isPresented)
+                .task {
+                    await store.send(.reload()).finish()
+                }
+                .onChange(of: id) { id in
+                    store.send(.reload(id))
+                }
+        }
+    }
+}
+
+// MARK: -
+struct UINovelChapterContent: View {
+    @Binding var isPresented: Bool
+
+    @EnvironmentObject var store: StoreOf<NovelChapterReducer>
+
+    @State private var fontSize = NovelChapterView.FontSize.footernote
+    @State private var vertical: Bool = true
+    @State private var colorTheme: ColorTheme = .system
+
+    init(isPresented: Binding<Bool>) {
+        self._isPresented = isPresented
+    }
+
+    var body: some View {
         CardComponent(backgroundColor: .init(uiColor: colorTheme.backgroundColor)) {
             ZStack {
                 content
-                    .scaleEffect(isMenuActive ? 0.84 : 1)
+                    .scaleEffect(store.state.isMenuActive ? 0.84 : 1)
                     .onTapGesture {
                         toggleMenu()
                     }
 
                 VStack {
-                    if isMenuActive {
+                    if store.state.isMenuActive {
                         topMenu
                             .transition(.move(edge: .top).combined(with: .opacity))
 
@@ -45,19 +75,9 @@ public struct UINovelChapterPage: View {
             }
         }
         .onDismiss(action: closePage)
-        .sheet(isPresented: $isSettingPresented) {
+        .sheet(isPresented: store.$state.isPresentedSetting(action: .toggleSetting)) {
             PreferenceView(fontSize: $fontSize, vertical: $vertical, colorTheme: $colorTheme)
                 .presentationDetents([.medium])
-        }
-        .task {
-            await reload()
-        }
-        .onChange(of: id) { id in
-            guard chapter?.id != id else { return }
-            resetState()
-            Task {
-                await reload(with: id)
-            }
         }
         .transition(
             .move(edge: .bottom)
@@ -69,14 +89,14 @@ public struct UINovelChapterPage: View {
 
     private var content: some View {
         ZStack {
-            let isLoading = _chapter.wrappedValue.isLoading
+            let isLoading = store.state.$chapter.isLoading
 
-            if let chapter {
+            if let chapter = store.state.chapter {
                 NovelChapterView(chapter: chapter, fontSize: fontSize, vertical: vertical, colorTheme: colorTheme)
                     .blur(radius: isLoading ? 4 : 0)
                     .animation(.easeInOut(duration: 0.1), value: isLoading)
             }
-            if chapter == nil || isLoading {
+            if store.state.chapter == nil || isLoading {
                 ZStack {
                     ProgressView()
                         .progressViewStyle(.circular)
@@ -100,7 +120,7 @@ public struct UINovelChapterPage: View {
                 Spacer()
 
                 Button {
-                    isSettingPresented.toggle()
+                    store.send(.toggleSetting)
                     toggleMenu()
                 } label: {
                     Image(systemName: "textformat.size")
@@ -120,21 +140,8 @@ public struct UINovelChapterPage: View {
         .frame(height: 44)
     }
 
-    private func resetState() {
-        isMenuActive = false
-        isSettingPresented = false
-    }
-
-    private func reload(with id: SourceID? = nil) async {
-        await _chapter.try {
-            try await chapterProvider.fetch(withID: id ?? self.id)
-        }
-    }
-
     private func toggleMenu() {
-        withAnimation(.spring(response: 0.4)) {
-            isMenuActive.toggle()
-        }
+        store.send(.toggleMenu, animation: .spring(response: 0.4))
     }
 
     private func closePage() {
