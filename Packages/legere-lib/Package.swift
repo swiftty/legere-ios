@@ -64,7 +64,8 @@ let package = Package(
         .target(
             name: "UIRankingPortalPage",
             dependencies: [
-                "UIDomain"
+                "UIDomain",
+                .product(name: "Reactorium", package: "reactorium")
             ]
         ),
 

@@ -1,26 +1,28 @@
 import SwiftUI
+import Reactorium
 import Domain
 import UIDomain
 
 public struct UIRankingPortalPage: View {
-    @Environment(\.rankingProvider) var rankingProvider
-
-    @State @WithLoading private var narouItems: [RankingItem] = []
-
     public init() {}
 
     public var body: some View {
-        content
-            .task {
-                await _narouItems.try {
-                    try await rankingProvider.fetchNarouDailyRankings()
-                }
-            }
+        Content()
+            .store(initialState: .init(), reducer: RankingPortalReducer(), dependency: {
+                .init(ranking: $0.rankingProvider)
+            })
     }
 
-    private var content: some View {
-        ZStack {
-            RankingPortalView(narouItems: _narouItems.wrappedValue)
+    private struct Content: View {
+        @EnvironmentObject var store: StoreOf<RankingPortalReducer>
+
+        var body: some View {
+            ZStack {
+                RankingPortalView(narouItems: store.state.$narouItems)
+            }
+            .task {
+                await store.send(.reload).finish()
+            }
         }
     }
 }
