@@ -57,7 +57,8 @@ let package = Package(
         .target(
             name: "UINovelDetailPage",
             dependencies: [
-                "UIDomain"
+                "UIDomain",
+                .product(name: "Reactorium", package: "reactorium")
             ]
         ),
         .target(
